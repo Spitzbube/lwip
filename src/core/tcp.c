@@ -666,6 +666,7 @@ tcp_new_port(void)
  *         ERR_OK if connect request has been sent
  *         other err_t values if connect request couldn't be sent
  */
+/* 234696fe - todo */
 err_t
 tcp_connect(struct tcp_pcb *pcb, ip_addr_t *ipaddr, u16_t port,
       tcp_connected_fn connected)
@@ -674,7 +675,11 @@ tcp_connect(struct tcp_pcb *pcb, ip_addr_t *ipaddr, u16_t port,
   u32_t iss;
   u16_t old_local_port;
 
-//  LWIP_ERROR("tcp_connect: can only connect from state CLOSED", pcb->state == CLOSED, return ERR_ISCONN);
+#if 0
+  LWIP_ERROR("tcp_connect: can only connect from state CLOSED", pcb->state == CLOSED, return ERR_ISCONN);
+#else
+  if (pcb->state != CLOSED) return ERR_ISCONN;
+#endif
 
   LWIP_DEBUGF(TCP_DEBUG, ("tcp_connect to port %"U16_F"\n", port));
   if (ipaddr != NULL) {
@@ -700,6 +705,10 @@ tcp_connect(struct tcp_pcb *pcb, ip_addr_t *ipaddr, u16_t port,
   old_local_port = pcb->local_port;
   if (pcb->local_port == 0) {
     pcb->local_port = tcp_new_port();
+    if (pcb->local_port == 0)
+    {
+    	return -2;
+    }
   }
 #if SO_REUSE
   if ((pcb->so_options & SOF_REUSEADDR) != 0) {
