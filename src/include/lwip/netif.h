@@ -179,7 +179,7 @@ struct netif {
   char*  hostname;
 #endif /* LWIP_NETIF_HOSTNAME */
   /** maximum transfer unit (in bytes) */
-  u16_t mtu;
+  u16_t mtu; //0x2c
   /** number of bytes used in hwaddr */
   u8_t hwaddr_len;
   /** link level hardware address of this interface */
@@ -187,7 +187,7 @@ struct netif {
   /** flags (see NETIF_FLAG_ above) */
   u8_t flags; //0x35
   /** descriptive abbreviation */
-  char name[2];
+  char name[2]; //0x36
   /** number of this interface */
   u8_t num; //0x38
 #if LWIP_SNMP
