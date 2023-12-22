@@ -567,22 +567,25 @@ static uint64_t get_ts_interval(uint64_t timeStart, uint64_t timeEnd)
  *       dropped because of memory failure (except for the TCP timers).
  */
 
+/* 2348bc8e - todo */
 static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
 {
-#if 0
+  ethif_fapi_state */*state*/sp_0x10 = netif->state;
   struct pbuf             *cur_pbuf;
-  char_t                  *buf;
-  int32_t                 total_len = 0;
-  int32_t                 written_len, len;
-  FAPI_ETH_FrameEndEnumT  frame;
-  uint32_t                retry = 0;
-  uint32_t                write_fail_flag = 0;
-#endif
-  err_t                   retval;
+  /*char_t*/uint8_t                  *buf;
+  int32_t                 total_len/*r7*/ = 0;
+  int32_t                 written_len, len/*r6*/;
+  /*FAPI_ETH_FrameEndEnumT*/int  frame;
+  uint32_t                retry/*r5*/ = 0;
+  uint32_t                write_fail_flag/*sp4*/ = 0;
+  /*err_t*/int                   retval;
 
+#if 1
 	console_send_string("low_level_output (todo.c): TODO\r\n");
 
-#if 0
+	return 0;
+#else
+
   LWIP_DEBUGF(NETIF_DEBUG, ("low_level_output: called\n"));
   sys_sem_wait(&sem_output);
 
@@ -590,44 +593,64 @@ static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
   pbuf_header(out_pbuf, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
 
-  for ( cur_pbuf = out_pbuf; cur_pbuf != NULL; cur_pbuf = cur_pbuf->next ) {
+  //->loc_2348bd12
+  for ( cur_pbuf = out_pbuf; cur_pbuf != 0/*NULL*/; cur_pbuf = cur_pbuf->next ) {
     /* Transmit pbuf one by one */
 
+#if 0
     LWIP_DEBUGF(NETIF_DEBUG, ("low_level_output: pbuf (%x, tot_len=%d)\n",
                 cur_pbuf, cur_pbuf->tot_len));
+#else
+	{
+		extern char debug_string[];
+		sprintf(debug_string, "low_level_output: pbuf (%x, tot_len=%d)\r\n",
+				cur_pbuf, cur_pbuf->tot_len);
+		console_send_string(debug_string);
+	}
+#endif
 
-    buf = (char_t *)cur_pbuf->payload;
+    buf = /*(char_t *)*/cur_pbuf->payload;
     len = cur_pbuf->len;
-    frame = ( cur_pbuf->next == NULL  ?
-                    FAPI_ETH_FRAME_END :
-                    FAPI_ETH_FRAME_NOTEND );
+    frame = ( cur_pbuf->next == 0/*NULL*/  ?
+                    1/*FAPI_ETH_FRAME_END*/ :
+                    0/*FAPI_ETH_FRAME_NOTEND*/ );
     do {
-
+    	//loc_2348bcbc
+    	//extern int eth_write(int, void*, int, int);
+#if 0
       while (get_ts_interval(last_eth_write_ts, FAPI_TIMER_GetTimeStamp(FAPI_TIMER_RESOLUTION_1_USEC)) < 50) ;
+#endif
 
-      written_len = FAPI_ETH_Write(ETH_HDL, buf, len, frame);
+      written_len = eth_write(/*ETH_HDL*/sp_0x10->Data_0, buf, len, frame);
       LWIP_DEBUGF(NETIF_DEBUG,
                   ("low_level_output: write (len=%d, written_len=%d)\n",
                   len, written_len));
 
+#if 0
       last_eth_write_ts = FAPI_TIMER_GetTimeStamp(FAPI_TIMER_RESOLUTION_1_USEC);
+#endif
 
       if (written_len < 0) {
+    	  //0x2348bccc
         ++retry;
-        if ((written_len == FAPI_ETH_ERR_AGAIN) ||
-          (written_len == FAPI_ETH_ERR_LOCK_FAIL)) {
+        if ((written_len == -108/*FAPI_ETH_ERR_AGAIN*/) ||
+          (written_len == -109/*FAPI_ETH_ERR_LOCK_FAIL*/)) {
           /* force context switch to avoid deadlock */
-          if (written_len == FAPI_ETH_ERR_LOCK_FAIL) {
+          if (written_len == -109/*FAPI_ETH_ERR_LOCK_FAIL*/) {
+#if 0
             RTOS_Sleep(1);
+#endif
           }
-          if (retry > ETHIF_FAPI_RETRY_MAX) {
+          if (retry > 10/*ETHIF_FAPI_RETRY_MAX*/) {
+        	  //loc_2348bcdc
             /* Fatal Error */
             /* Should we check link status(up) yet? */
             LWIP_DEBUGF(NETIF_DEBUG, ("low_level_output: output retry over\n"));
             write_fail_flag = 1;
-            break;
+            break; //->loc_2348bcfc
           }
           else {
+        	  //loc_2348bce2
             /* Try RETRY_MAX times */
             written_len = 0;
           }
@@ -639,10 +662,13 @@ static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
             break;
         }
       }
+#if 0
       else if (written_len == 0)
       {
+    	  //loc_2348bce6
           RTOS_Sleep(1);
       }
+#endif
       else {
         /* write is OK. */
         retry = 0;
@@ -652,18 +678,23 @@ static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
       len -= written_len;
       total_len += written_len;
     } while ( len != 0 );
-
+    //0x2348bcf6
     if (write_fail_flag && (total_len > 0)) {/* Something wrong happened. */
+    	//0x2348bd00
       /* Here, we have to cancel already-queued data by write.
        * Write(0) doesn't acutually send data to network. */
       LWIP_DEBUGF(NETIF_DEBUG, ("low_level_output: write failed in mid of data\n"));
-      written_len = FAPI_ETH_Write(ETH_HDL, buf, 0, FAPI_ETH_FRAME_END);
+      written_len = eth_write(/*ETH_HDL*/sp_0x10->Data_0, buf, 0, 1/*FAPI_ETH_FRAME_END*/);
+      //->loc_2348bd16
       /* force context switch to avoid deadlock */
+#if 0
       if (written_len == FAPI_ETH_ERR_LOCK_FAIL) {
         RTOS_Sleep(1);
       }
+#endif
       break;
     }
+    //loc_2348bd10
   } /* for */
 
   if (total_len == out_pbuf->tot_len) {
@@ -677,9 +708,9 @@ static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
   pbuf_header(out_pbuf, ETH_PAD_SIZE); /* reclaim the padding word */
 #endif
   sys_sem_signal(&sem_output);
-#endif
 
   return retval;
+#endif
 }
 
 
@@ -1364,7 +1395,7 @@ uint32_t low_level_input_callback(void* a)
 {
 	uint32_t i;
 
-#if 1
+#if 0
 	console_send_string("low_level_input_callback (todo.c): TODO\r\n");
 #endif
 
@@ -1546,7 +1577,6 @@ static void ethif_fapi_thread(void *arg)
     sys_mbox_fetch(&mbox_recv, &msg); //last_netif_read_msg);
 //    msg = last_netif_read_msg;
     LWIP_DEBUGF(NETIF_DEBUG, ("ethif_fapi_thread: waked up by message\n"));
-	console_send_string("ethif_fapi_thread: waked up by message\r\n");
     if (msg == NULL)
     {
       LWIP_DEBUGF(NETIF_DEBUG, ("ethif_fapi_thread: exit mainloop\n"));
@@ -1574,7 +1604,7 @@ static void ethif_fapi_thread(void *arg)
 		  {
 		  case ETHTYPE_IP:
 		  case ETHTYPE_ARP:
-			  if (0 != sub_2345a740/*sub_23479b98*/(p, netifp))
+			  if (0 != sub_23479b98(p, netifp))
 			  {
 				  //loc_2348bec0
 				  pbuf_free(p);
