@@ -570,6 +570,7 @@ static uint64_t get_ts_interval(uint64_t timeStart, uint64_t timeEnd)
 /* 2348bc8e - todo */
 static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
 {
+#if 0
   ethif_fapi_state */*state*/sp_0x10 = netif->state;
   struct pbuf             *cur_pbuf;
   /*char_t*/uint8_t                  *buf;
@@ -578,13 +579,12 @@ static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
   /*FAPI_ETH_FrameEndEnumT*/int  frame;
   uint32_t                retry/*r5*/ = 0;
   uint32_t                write_fail_flag/*sp4*/ = 0;
+#endif
   /*err_t*/int                   retval;
 
-#if 1
 	console_send_string("low_level_output (todo.c): TODO\r\n");
 
-	return 0;
-#else
+#if 0
 
   LWIP_DEBUGF(NETIF_DEBUG, ("low_level_output: called\n"));
   sys_sem_wait(&sem_output);
@@ -708,9 +708,9 @@ static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
   pbuf_header(out_pbuf, ETH_PAD_SIZE); /* reclaim the padding word */
 #endif
   sys_sem_signal(&sem_output);
+#endif
 
   return retval;
-#endif
 }
 
 
