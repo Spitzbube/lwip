@@ -570,7 +570,7 @@ static uint64_t get_ts_interval(uint64_t timeStart, uint64_t timeEnd)
 /* 2348bc8e - todo */
 static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
 {
-#if 0
+#if 1
   ethif_fapi_state */*state*/sp_0x10 = netif->state;
   struct pbuf             *cur_pbuf;
   /*char_t*/uint8_t                  *buf;
@@ -582,9 +582,11 @@ static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
 #endif
   /*err_t*/int                   retval;
 
-	console_send_string("low_level_output (todo.c): TODO\r\n");
-
 #if 0
+	console_send_string("low_level_output (todo.c): TODO\r\n");
+#endif
+
+#if 1
 
   LWIP_DEBUGF(NETIF_DEBUG, ("low_level_output: called\n"));
   sys_sem_wait(&sem_output);
@@ -597,7 +599,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *out_pbuf)
   for ( cur_pbuf = out_pbuf; cur_pbuf != 0/*NULL*/; cur_pbuf = cur_pbuf->next ) {
     /* Transmit pbuf one by one */
 
-#if 0
+#if 1
     LWIP_DEBUGF(NETIF_DEBUG, ("low_level_output: pbuf (%x, tot_len=%d)\n",
                 cur_pbuf, cur_pbuf->tot_len));
 #else
@@ -744,7 +746,7 @@ static struct pbuf * low_level_input(struct netif *netif)
 	eth_stat_params    devstat;
 	int32_t                 retval;
 
-#if 1
+#if 0
 	console_send_string("low_level_input (todo.c): TODO\r\n");
 #endif
 
@@ -1577,7 +1579,9 @@ static void ethif_fapi_thread(void *arg)
     sys_mbox_fetch(&mbox_recv, &msg); //last_netif_read_msg);
 //    msg = last_netif_read_msg;
     LWIP_DEBUGF(NETIF_DEBUG, ("ethif_fapi_thread: waked up by message\n"));
+#if 0
     console_send_string("ethif_fapi_thread: waked up by message\r\n");
+#endif
     if (msg == NULL)
     {
       LWIP_DEBUGF(NETIF_DEBUG, ("ethif_fapi_thread: exit mainloop\n"));
