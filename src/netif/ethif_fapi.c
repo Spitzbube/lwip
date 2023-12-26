@@ -1577,6 +1577,7 @@ static void ethif_fapi_thread(void *arg)
     sys_mbox_fetch(&mbox_recv, &msg); //last_netif_read_msg);
 //    msg = last_netif_read_msg;
     LWIP_DEBUGF(NETIF_DEBUG, ("ethif_fapi_thread: waked up by message\n"));
+    console_send_string("ethif_fapi_thread: waked up by message\r\n");
     if (msg == NULL)
     {
       LWIP_DEBUGF(NETIF_DEBUG, ("ethif_fapi_thread: exit mainloop\n"));
